@@ -247,12 +247,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Simulator with video content on start
     updateSimulator('video');
 
-    // 5. Dynamic Investment Calculator & Form Sync
+    // 5. Dynamic Investment Calculator & WhatsApp Link Sync
     const feeInput = document.getElementById('fee-val');
     const adsInput = document.getElementById('ads-val');
     const adsValText = document.getElementById('ads-val-text');
     const totalValText = document.getElementById('total-val-text');
-    const budgetSelect = document.getElementById('budget-selected');
 
     const updateCalculations = () => {
         const fee = 9000; // Fixed fee
@@ -262,47 +261,21 @@ document.addEventListener('DOMContentLoaded', () => {
         adsValText.textContent = `$${ads.toLocaleString('es-MX')} MXN`;
         totalValText.textContent = `$${total.toLocaleString('es-MX')} MXN`;
 
-        // Sync to form dropdown selection if it matches or select the closest option
-        if (ads === 3000) {
-            budgetSelect.value = "3000";
-        } else if (ads === 5000) {
-            budgetSelect.value = "5000";
-        } else if (ads === 1500) {
-            budgetSelect.value = "1500";
-        } else {
-            // Add custom option or select closest
-            let options = Array.from(budgetSelect.options);
-            let exists = options.some(opt => parseInt(opt.value, 10) === ads);
-            if (!exists) {
-                // Remove any previous custom option
-                const customOpt = budgetSelect.querySelector('.custom-option');
-                if (customOpt) customOpt.remove();
-
-                // Add new custom option
-                const newOpt = document.createElement('option');
-                newOpt.value = ads.toString();
-                newOpt.className = 'custom-option';
-                newOpt.textContent = `$${ads.toLocaleString('es-MX')} MXN (Personalizado)`;
-                newOpt.selected = true;
-                budgetSelect.appendChild(newOpt);
-            } else {
-                budgetSelect.value = ads.toString();
-            }
+        // Update accept proposal button WhatsApp href dynamically with current selected budget
+        const acceptProposalBtn = document.getElementById('accept-proposal-btn');
+        if (acceptProposalBtn) {
+            const message = `¡Hola! Leímos la propuesta de marketing digital de AromaMedia para Flavor Cup Coffee y estamos listos para iniciar.\n\n` +
+                            `*Detalles del plan seleccionado:*\n` +
+                            `• *Fee de Gestión:* $9,000 MXN / mes\n` +
+                            `• *Pauta de Ads:* $${ads.toLocaleString('es-MX')} MXN / mes\n` +
+                            `• *Inversión Total:* $${total.toLocaleString('es-MX')} MXN / mes\n\n` +
+                            `¡Coordinemos la primera sesión de grabación de cortesía!`;
+            acceptProposalBtn.href = `https://api.whatsapp.com/send?phone=525512345678&text=${encodeURIComponent(message)}`;
         }
     };
 
     if (adsInput) {
         adsInput.addEventListener('input', updateCalculations);
-    }
-
-    if (budgetSelect) {
-        budgetSelect.addEventListener('change', () => {
-            const selectedVal = parseInt(budgetSelect.value, 10);
-            if (adsInput) {
-                adsInput.value = selectedVal;
-                updateCalculations();
-            }
-        });
     }
 
     // Initialize Calculations
@@ -330,36 +303,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-
-    // 7. Contact Form WhatsApp Redirection
-    const proposalForm = document.getElementById('proposal-form');
-    if (proposalForm) {
-        proposalForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const ownerName = document.getElementById('owner-name').value.trim();
-            const cafeName = document.getElementById('cafe-name').value.trim();
-            const whatsappNum = document.getElementById('whatsapp-num').value.trim();
-            const budgetSelected = parseInt(document.getElementById('budget-selected').value, 10);
-            const totalInversion = 9000 + budgetSelected;
-
-            // Generate WhatsApp link
-            const phone = "525512345678"; // Agency contact phone number
-            const message = `¡Hola! Vimos la propuesta de marketing digital de AromaMedia y nos interesa implementarla para la cafetería *${cafeName}*.\n\n` +
-                            `*Detalles del contacto:*\n` +
-                            `• *Nombre del propietario:* ${ownerName}\n` +
-                            `• *WhatsApp:* ${whatsappNum}\n\n` +
-                            `*Detalles del paquete de inversión:*\n` +
-                            `• *Fee de Gestión:* $9,000 MXN / mes\n` +
-                            `• *Pauta de Ads Recomendada:* $${budgetSelected.toLocaleString('es-MX')} MXN / mes\n` +
-                            `• *Inversión Sugerida Total:* $${totalInversion.toLocaleString('es-MX')} MXN / mes\n\n` +
-                            `¡Por favor, agendemos una breve llamada para coordinar la primera sesión de grabación de cortesía!`;
-
-            const encodedMessage = encodeURIComponent(message);
-            const whatsappUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`;
-
-            // Open WhatsApp in a new tab
-            window.open(whatsappUrl, '_blank');
-        });
-    }
 });
